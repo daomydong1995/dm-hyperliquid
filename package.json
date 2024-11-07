@@ -2,7 +2,8 @@
   "name": "dm-hyperliquid",
   "version": "0.1.0",
   "description": "HyperLquid",
-  "source": "./src/index.tsx",
+  "source": "./src/index.ts",
+  "private": true,
   "main": "./lib/commonjs/index.js",
   "module": "./lib/module/index.js",
   "exports": {
