@@ -9,7 +9,7 @@ export class WebSocketClient extends EventEmitter {
     private pingInterval: NodeJS.Timeout | null = null;
     private reconnectAttempts: number = 0;
     private maxReconnectAttempts: number = 5;
-    private reconnectDelay: number = 5000;
+    // private reconnectDelay: number = 5000;
     private initialReconnectDelay: number = 1000;
     private maxReconnectDelay: number = 30000;
 

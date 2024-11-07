@@ -5,19 +5,18 @@ import { PerpetualsInfoAPI } from './info/perpetuals';
 import { HttpApi } from '../utils/helpers';
 import { SymbolConversion } from '../utils/symbolConversion';
 
-import { 
-    AllMids, 
-    Meta, 
-    UserOpenOrders, 
-    FrontendOpenOrders, 
-    UserFills, 
-    UserRateLimit, 
-    OrderStatus, 
-    L2Book, 
-    CandleSnapshot 
+import type {
+    AllMids,
+    UserOpenOrders,
+    FrontendOpenOrders,
+    UserFills,
+    UserRateLimit,
+    OrderStatus,
+    L2Book,
+    CandleSnapshot
 } from '../types/index';
 
-import { InfoType, ENDPOINTS } from '../types/constants';
+import { ENDPOINTS } from '../types/constants';
 
 export class InfoAPI {
     public spot: SpotInfoAPI;
@@ -29,7 +28,7 @@ export class InfoAPI {
     constructor(baseURL: string, rateLimiter: RateLimiter, symbolConversion: SymbolConversion) {
         this.httpApi = new HttpApi(baseURL, ENDPOINTS.INFO, rateLimiter);
         this.symbolConversion = symbolConversion;
-        
+
         this.generalAPI = new GeneralInfoAPI(this.httpApi, this.symbolConversion);
         this.spot = new SpotInfoAPI(this.httpApi, this.symbolConversion);
         this.perpetuals = new PerpetualsInfoAPI(this.httpApi, this.symbolConversion);

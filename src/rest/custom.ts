@@ -3,11 +3,9 @@
 import { ethers } from 'ethers';
 import { InfoAPI } from './info';
 import { ExchangeAPI } from './exchange';
-import { UserOpenOrders } from '../types';
-import { OrderResponse, CancelOrderRequest, OrderRequest, OrderType } from '../types/index';
-import { CancelOrderResponse } from '../utils/signing'
+import type { OrderResponse, CancelOrderRequest, OrderRequest, OrderType, UserOpenOrders } from '../types';
+import type { CancelOrderResponse } from '../utils/signing'
 import { SymbolConversion } from '../utils/symbolConversion';
-import { floatToWire } from '../utils/signing';
 
 export class CustomOperations {
     private exchange: ExchangeAPI;
@@ -30,13 +28,13 @@ export class CustomOperations {
             const openOrders: UserOpenOrders = await this.infoApi.getUserOpenOrders(address);
 
             let ordersToCancel: UserOpenOrders;
-            
+
             for (let order of openOrders) {
                 order.coin = await this.symbolConversion.convertSymbol(order.coin);
             }
 
             if (symbol) {
-                ordersToCancel = openOrders.filter(order => order.coin === symbol);
+                ordersToCancel = openOrders.filter((order: any) => order.coin === symbol);
             } else {
                 ordersToCancel = openOrders;
             }
@@ -45,7 +43,7 @@ export class CustomOperations {
                 throw new Error('No orders to cancel');
             }
 
-            const cancelRequests: CancelOrderRequest[] = ordersToCancel.map(order => ({
+            const cancelRequests: CancelOrderRequest[] = ordersToCancel.map((order: any) => ({
                 coin: order.coin,
                 o: order.oid
             }));
@@ -83,7 +81,7 @@ export class CustomOperations {
         console.log(decimals)
 
         px *= isBuy ? (1 + slippage) : (1 - slippage);
-        return Number(px.toFixed(isSpot ? 8 : decimals-1));
+        return Number(px.toFixed(isSpot ? 8 : decimals - 1));
     }
 
     async marketOpen(
@@ -97,7 +95,7 @@ export class CustomOperations {
         const convertedSymbol = await this.symbolConversion.convertSymbol(symbol);
         const slippagePrice = await this.getSlippagePrice(convertedSymbol, isBuy, slippage, px);
         console.log("Slippage Price: ", slippagePrice)
-        
+
         const orderRequest: OrderRequest = {
             coin: convertedSymbol,
             is_buy: isBuy,
@@ -132,10 +130,10 @@ export class CustomOperations {
             const szi = parseFloat(item.szi);
             const closeSize = size || Math.abs(szi);
             const isBuy = szi < 0;
-            
+
             // Get aggressive Market Price
             const slippagePrice = await this.getSlippagePrice(convertedSymbol, isBuy, slippage, px);
-            
+
             // Market Order is an aggressive Limit Order IoC
             const orderRequest: OrderRequest = {
                 coin: convertedSymbol,
@@ -152,7 +150,7 @@ export class CustomOperations {
 
             return this.exchange.placeOrder(orderRequest);
         }
-        
+
         throw new Error(`No position found for ${convertedSymbol}`);
     }
 

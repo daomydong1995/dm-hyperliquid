@@ -1,7 +1,7 @@
 import { WebSocketClient } from './connection';
-import { 
-    AllMids, WsTrade, WsBook, WsOrder, WsUserEvent, Notification, 
-    WebData2, Candle, WsUserFills, WsUserFundings, WsUserNonFundingLedgerUpdates 
+import type {
+    AllMids, WsBook, WsOrder, WsUserEvent, Notification,
+    WebData2, Candle, WsUserFills, WsUserFundings, WsUserNonFundingLedgerUpdates
 } from '../types/index';
 import { SymbolConversion } from '../utils/symbolConversion';
 
@@ -14,27 +14,27 @@ export class WebSocketSubscriptions {
         this.symbolConversion = symbolConversion;
     }
 
-    private async subscribe(subscription: { type: string; [key: string]: any }): Promise<void> {
+    private async subscribe(subscription: { type: string;[key: string]: any }): Promise<void> {
         await this.ws.sendMessage({ method: 'subscribe', subscription: subscription });
     }
 
-    private async unsubscribe(subscription: { type: string; [key: string]: any }): Promise<void> {
+    private async unsubscribe(subscription: { type: string;[key: string]: any }): Promise<void> {
         const convertedSubscription = await this.symbolConversion.convertSymbolsInObject(subscription);
         await this.ws.sendMessage({ method: 'unsubscribe', subscription: convertedSubscription });
     }
 
-    private handleMessage(message: any, callback: (data: any) => void, channel: string, additionalChecks: (data: any) => boolean = () => true) {
-        if (typeof message !== 'object' || message === null) {
-            console.warn('Received invalid message format:', message);
-            return;
-        }
+    // private handleMessage(message: any, callback: (data: any) => void, channel: string, additionalChecks: (data: any) => boolean = () => true) {
+    //     if (typeof message !== 'object' || message === null) {
+    //         console.warn('Received invalid message format:', message);
+    //         return;
+    //     }
 
-        let data = message.data || message;
-        if (data.channel === channel && additionalChecks(data)) {
-            const convertedData = this.symbolConversion.convertSymbolsInObject(data);
-            callback(convertedData);
-        }
-    }
+    //     let data = message.data || message;
+    //     if (data.channel === channel && additionalChecks(data)) {
+    //         const convertedData = this.symbolConversion.convertSymbolsInObject(data);
+    //         callback(convertedData);
+    //     }
+    // }
 
     async subscribeToAllMids(callback: (data: AllMids) => void): Promise<void> {
         if (typeof callback !== 'function') {
@@ -127,7 +127,7 @@ export class WebSocketSubscriptions {
         this.ws.on('message', async (message: any) => {
 
             if (message.channel === 'userEvents') {
-                message = await  this.symbolConversion.convertSymbolsInObject(message)
+                message = await this.symbolConversion.convertSymbolsInObject(message)
                 callback(message.data)
             }
         });
@@ -167,7 +167,7 @@ export class WebSocketSubscriptions {
     async postRequest(requestType: 'info' | 'action', payload: any): Promise<any> {
         const id = Date.now();
         const convertedPayload = await this.symbolConversion.convertSymbolsInObject(payload);
-        
+
         await this.ws.sendMessage({
             method: 'post',
             id: id,

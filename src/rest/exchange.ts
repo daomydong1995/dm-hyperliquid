@@ -6,46 +6,40 @@ import {
   signL1Action,
   orderRequestToOrderWire,
   orderWiresToOrderAction,
-  CancelOrderResponse,
+  type CancelOrderResponse,
   signUserSignedAction,
   signUsdTransferAction,
   signWithdrawFromBridgeAction,
 } from '../utils/signing';
 import * as CONSTANTS from '../types/constants';
 
-import {
+import type {
   CancelOrderRequest,
   OrderRequest
 } from '../types/index';
 
 import { ExchangeType, ENDPOINTS } from '../types/constants';
 import { SymbolConversion } from '../utils/symbolConversion';
-import { floatToWire } from '../utils/signing';
 
-
-// const IS_MAINNET = true; // Make sure this matches the IS_MAINNET in signing.ts
 
 export class ExchangeAPI {
   private wallet: ethers.Wallet;
   private httpApi: HttpApi;
   private symbolConversion: SymbolConversion;
   private IS_MAINNET = true;
-  private walletAddress: string | null;
 
   constructor(
-    testnet: boolean, 
-    privateKey: string, 
-    private info: InfoAPI,
+    testnet: boolean,
+    privateKey: string,
+    _: InfoAPI,
     rateLimiter: RateLimiter,
     symbolConversion: SymbolConversion,
-    walletAddress: string | null = null
   ) {
     const baseURL = testnet ? CONSTANTS.BASE_URLS.TESTNET : CONSTANTS.BASE_URLS.PRODUCTION;
     this.IS_MAINNET = !testnet;
     this.httpApi = new HttpApi(baseURL, ENDPOINTS.EXCHANGE, rateLimiter);
     this.wallet = new ethers.Wallet(privateKey);
     this.symbolConversion = symbolConversion;
-    this.walletAddress = walletAddress;
   }
 
   private async getAssetIndex(symbol: string): Promise<number> {
@@ -53,7 +47,7 @@ export class ExchangeAPI {
     if (index === undefined) {
       throw new Error(`Unknown asset: ${symbol}`);
     }
-      return index;
+    return index;
   }
 
   async placeOrder(orderRequest: OrderRequest): Promise<any> {
@@ -66,7 +60,7 @@ export class ExchangeAPI {
       const signature = await signL1Action(this.wallet, action, orderRequest.vaultAddress || null, nonce, this.IS_MAINNET);
 
       const payload = { action, nonce, signature };
-    
+
       return this.httpApi.makeRequest(payload, 1);
     } catch (error) {
       throw error;
@@ -77,21 +71,21 @@ export class ExchangeAPI {
   async cancelOrder(cancelRequests: CancelOrderRequest | CancelOrderRequest[]): Promise<CancelOrderResponse> {
     try {
       const cancels = Array.isArray(cancelRequests) ? cancelRequests : [cancelRequests];
-      
+
       // Ensure all cancel requests have asset indices
       const cancelsWithIndices = await Promise.all(cancels.map(async (req) => ({
         ...req,
         a: await this.getAssetIndex(req.coin)
       })));
-  
+
       const action = {
         type: ExchangeType.CANCEL,
         cancels: cancelsWithIndices.map(({ a, o }) => ({ a, o }))
       };
-      
+
       const nonce = Date.now();
       const signature = await signL1Action(this.wallet, action, null, nonce, this.IS_MAINNET);
-  
+
       const payload = { action, nonce, signature };
       return this.httpApi.makeRequest(payload, 1);
     } catch (error) {
@@ -145,21 +139,21 @@ export class ExchangeAPI {
       const assetIndices = await Promise.all(
         modifies.map(m => this.getAssetIndex(m.order.coin))
       );
-  
+
       const action = {
         type: ExchangeType.BATCH_MODIFY,
         modifies: modifies.map((m, index) => {
 
           return {
             oid: m.oid,
-            order: orderRequestToOrderWire(m.order, assetIndices[index])
+            order: orderRequestToOrderWire(m.order, assetIndices[index] as number)
           };
         })
       };
-  
+
       const nonce = Date.now();
       const signature = await signL1Action(this.wallet, action, null, nonce, this.IS_MAINNET);
-  
+
       const payload = { action, nonce, signature };
       return this.httpApi.makeRequest(payload, 1);
     } catch (error) {

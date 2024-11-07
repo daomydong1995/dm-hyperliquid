@@ -1,19 +1,9 @@
-// src/rest/info/general.ts
 
-import { 
-    AllMids, 
-    Meta, 
-    UserOpenOrders, 
-    FrontendOpenOrders, 
-    UserFills, 
-    UserRateLimit, 
-    OrderStatus, 
-    L2Book, 
-    CandleSnapshot 
-} from '../../types';
+
 import { HttpApi } from '../../utils/helpers';
 import { SymbolConversion } from '../../utils/symbolConversion';
 import { InfoType } from '../../types/constants';
+import type { AllMids, CandleSnapshot, FrontendOpenOrders, L2Book, OrderStatus, UserFills, UserOpenOrders, UserRateLimit } from '../../types';
 
 export class GeneralInfoAPI {
     private httpApi: HttpApi;

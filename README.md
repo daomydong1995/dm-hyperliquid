@@ -10,12 +10,6 @@ npm install dm-hyperliquid
 
 ## Usage
 
-
-```js
-import { multiply } from 'dm-hyperliquid';
-
-// ...
-
 const result = await multiply(3, 7);
 ```
 
