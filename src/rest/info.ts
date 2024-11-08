@@ -78,7 +78,7 @@ export class InfoAPI {
         return this.generalAPI.getL2Book(coin, rawResponse);
     }
 
-    async getCandleSnapshot(coin: string, interval: string, startTime: number, endTime: number, rawResponse: boolean = false): Promise<CandleSnapshot> {
+    async getCandleSnapshot(coin: string, interval: string, startTime: number, endTime: number, rawResponse: boolean = false): Promise<CandleSnapshot[]> {
         return this.generalAPI.getCandleSnapshot(coin, interval, startTime, endTime, rawResponse);
     }
 }
